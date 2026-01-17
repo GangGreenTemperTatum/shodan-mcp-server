@@ -57,11 +57,14 @@ Replace `YOUR_ACTUAL_API_KEY_HERE` with your real API key.
 # Create skills directory if it doesn't exist
 mkdir -p ~/.claude/skills
 
-# Link or copy skills
-ln -s /path/to/shodan-mcp-server/skills/*.md ~/.claude/skills/
+# Copy all skill directories
+cp -r skills/*/ ~/.claude/skills/
 
-# Or copy them
-cp skills/*.md ~/.claude/skills/
+# Or create symlinks for easier updates
+ln -s /path/to/shodan-mcp-server/skills/shodan-recon ~/.claude/skills/
+ln -s /path/to/shodan-mcp-server/skills/shodan-vuln-scan ~/.claude/skills/
+ln -s /path/to/shodan-mcp-server/skills/shodan-threat-intel ~/.claude/skills/
+ln -s /path/to/shodan-mcp-server/skills/shodan-asset-monitor ~/.claude/skills/
 ```
 
 ## Step 4: Restart Claude Desktop

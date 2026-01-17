@@ -62,18 +62,6 @@ Add to your Claude Desktop configuration file:
 }
 ```
 
-### 5. Install Skills (Optional but Recommended)
-
-Copy skills to your Claude skills directory:
-
-```bash
-# macOS
-cp skills/*.md ~/.claude/skills/
-
-# Or create symlinks for easier updates
-ln -s /path/to/shodan-mcp-server/skills/*.md ~/.claude/skills/
-```
-
 ## Available Tools
 
 ### shodan_host_search
