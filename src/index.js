@@ -31,17 +31,17 @@ const server = new Server(
 const TOOLS = [
   {
     name: 'shodan_host_search',
-    description: 'Search Shodan for hosts matching a query. Returns detailed information about discovered hosts including IP addresses, ports, services, and vulnerabilities. Use for asset discovery and reconnaissance.',
+    description: 'Search Shodan for hosts matching a query. Returns detailed information about discovered hosts including IP addresses, ports, services, and vulnerabilities. Use for asset discovery and reconnaissance.\n\nICS/SCADA Examples:\n- "port:502 tag:ics" - Modbus industrial control systems\n- "port:502 Siemens" - Siemens SCADA/PLCs\n- "port:502 \\"Schneider Electric\\"" - Schneider Modbus devices\n- "port:44818 \\"Allen-Bradley\\"" - Rockwell EtherNet/IP\n- "port:20000 tag:ics" - DNP3 utility SCADA\n- "port:102 S7" - Siemens S7 PLCs\n- "port:47808 BACnet" - Building automation\n- "port:4840 \\"OPC UA\\"" - Modern ICS protocol\n- "port:502 org:\\"Electric\\"" - Power infrastructure\n- "port:502 country:US has_vuln:true" - Vulnerable Modbus in US\n\nEffective Patterns:\n- Combine filters: "port:502 tag:ics country:US org:\\"Water\\""\n- Use facets for overview: facets="country,org,product"\n- Start broad, narrow down: "port:502" → "port:502 tag:ics" → "port:502 tag:ics Siemens"',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Shodan search query (e.g., "apache city:San Francisco", "port:22 country:US", "vuln:CVE-2021-44228")',
+          description: 'Shodan search query. General examples: "apache city:San Francisco", "port:22 country:US", "vuln:CVE-2021-44228". ICS/SCADA: "port:502 tag:ics" (Modbus), "port:20000" (DNP3), "port:44818" (EtherNet/IP), "port:102" (Siemens S7), "port:47808" (BACnet). Combine with org:"", country:, product:"", has_vuln:true',
         },
         facets: {
           type: 'string',
-          description: 'Optional comma-separated facets for aggregated results (e.g., "country,org,port")',
+          description: 'Optional comma-separated facets for aggregated results. Common: "country,org,port,product". For ICS: "country,org,product" to see distribution. Use to get overview without burning credits.',
         },
         page: {
           type: 'number',
@@ -111,17 +111,17 @@ const TOOLS = [
   },
   {
     name: 'shodan_exploits_search',
-    description: 'Search for exploits in the Shodan Exploits database. Useful for finding known exploits for specific CVEs or software.',
+    description: 'Search for exploits in the Shodan Exploits database. Useful for finding known exploits for specific CVEs or software. Critical for ICS/SCADA security assessments.\n\nICS/SCADA Exploit Examples:\n- "Modbus" - Modbus protocol exploits\n- "SCADA" - General SCADA vulnerabilities\n- "Siemens" - Siemens PLC/SCADA exploits\n- "Schneider Electric" - Schneider vulnerabilities\n- "Allen-Bradley" - Rockwell exploits\n- "CVE-2019-6575" - Modbus simulator vulnerability\n- "CVE-2020-15782" - BACnet buffer overflow\n- "type:remote platform:hardware" - Hardware-specific\n- "ICS" - Industrial Control System exploits\n\nCommon ICS CVE Searches:\n- Modbus vulnerabilities: Often memory corruption, authentication bypass\n- SCADA exploits: Remote code execution, denial of service\n- PLC exploits: Ladder logic manipulation, configuration changes',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Search query (e.g., "microsoft", "CVE-2021-44228", "type:webapps platform:linux")',
+          description: 'Search query. General: "microsoft", "CVE-2021-44228". ICS/SCADA: "Modbus", "SCADA", "Siemens", "Schneider", "ICS". Filters: "type:remote", "platform:hardware", "platform:linux"',
         },
         facets: {
           type: 'string',
-          description: 'Optional facets for aggregation (e.g., "type,platform,author")',
+          description: 'Optional facets for aggregation. Common: "type,platform,author". For ICS: "type,platform" to see exploit categories.',
         },
         page: {
           type: 'number',
@@ -134,7 +134,7 @@ const TOOLS = [
   },
   {
     name: 'shodan_ports',
-    description: 'Get a list of port numbers that Shodan crawls on the Internet.',
+    description: 'Get a list of port numbers that Shodan crawls on the Internet. Useful for discovering what protocols are monitored.\n\nKey ICS/SCADA Ports in Shodan:\n- 102: Siemens S7 PLCs\n- 502: Modbus TCP (most common ICS protocol)\n- 1911: Niagara Fox (building automation)\n- 2404: IEC 60870-5-104 (power systems)\n- 4840: OPC UA (modern ICS standard)\n- 20000: DNP3 (utilities/SCADA)\n- 44818: EtherNet/IP (Rockwell/Allen-Bradley)\n- 47808: BACnet (HVAC/building systems)\n\nUse this to verify Shodan monitors your target protocol.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -150,17 +150,17 @@ const TOOLS = [
   },
   {
     name: 'shodan_count',
-    description: 'Get the total number of results for a search query without returning the actual results. Useful for scoping searches.',
+    description: 'Get the total number of results for a search query without returning the actual results. Useful for scoping searches before running full queries to avoid wasting API credits.\n\nBest Practice: Always use count first for large ICS/SCADA queries.\n\nExample Workflow:\n1. Count: "port:502 tag:ics" → 50,000 results\n2. Narrow: "port:502 tag:ics country:US" → 15,000 results  \n3. Refine: "port:502 tag:ics country:US org:\\"Electric\\"" → 500 results\n4. Then run full search on refined query\n\nUse with facets to see distribution without burning credits on full results.',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Shodan search query',
+          description: 'Shodan search query. Same syntax as shodan_host_search. Examples: "port:502 tag:ics", "port:502 country:US", "tag:ics has_vuln:true"',
         },
         facets: {
           type: 'string',
-          description: 'Optional facets for aggregated counts',
+          description: 'Optional facets for aggregated counts. Use to see distribution: "country,org,product". Shows breakdown without full results.',
         },
       },
       required: ['query'],
@@ -168,13 +168,13 @@ const TOOLS = [
   },
   {
     name: 'shodan_query_search',
-    description: 'Search for saved Shodan queries shared by the community.',
+    description: 'Search for saved Shodan queries shared by the community. Useful for discovering popular query patterns and learning effective search techniques.\n\nPopular ICS/SCADA Query Topics:\n- "SCADA" - Find SCADA-related searches\n- "ICS" - Industrial control system queries\n- "Modbus" - Modbus protocol queries\n- "PLC" - Programmable logic controller searches\n- "industrial" - General industrial searches\n- "critical infrastructure" - Infrastructure queries\n\nUse community queries to:\n- Learn effective search patterns\n- Discover new reconnaissance techniques\n- Find popular vulnerability searches\n- Get ideas for your own queries',
     inputSchema: {
       type: 'object',
       properties: {
         query: {
           type: 'string',
-          description: 'Search term for queries',
+          description: 'Search term for queries. Try: "SCADA", "ICS", "Modbus", "PLC", "industrial", "critical infrastructure"',
         },
         page: {
           type: 'number',
@@ -187,13 +187,13 @@ const TOOLS = [
   },
   {
     name: 'shodan_query_tags',
-    description: 'Get a list of popular tags for saved Shodan queries.',
+    description: 'Get a list of popular tags for saved Shodan queries. Tags help discover trending search topics and common query categories.\n\nCommon ICS/SCADA Related Tags:\n- ics - Industrial Control Systems\n- scada - SCADA systems  \n- industrial - Industrial equipment\n- malware - Malware-infected systems\n- webcam - IP cameras (often in facilities)\n- default - Default credentials/configs\n\nUse to browse popular query categories and discover new search angles.',
     inputSchema: {
       type: 'object',
       properties: {
         size: {
           type: 'number',
-          description: 'Number of tags to return (default: 10)',
+          description: 'Number of tags to return (default: 10). Increase to 20-30 for comprehensive tag list.',
           default: 10,
         },
       },
