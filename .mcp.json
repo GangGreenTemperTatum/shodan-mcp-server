@@ -1,0 +1,9 @@
+{
+  "shodan": {
+    "command": "node",
+    "args": ["${CLAUDE_PLUGIN_ROOT}/src/index.js"],
+    "env": {
+      "SHODAN_API_KEY": "${SHODAN_API_KEY}"
+    }
+  }
+}
